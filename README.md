@@ -32,9 +32,9 @@ string? name = GUI.Dialog.Prompt("What's your name?"); // Show a prompt dialog a
 
 # Nuget Package
 
-|| NetAutoGUI.Windows |
-|-|--------------------|
-|*NuGet*| [v3.0.0](https://www.nuget.org/packages/NetAutoGUI.Windows/)|
+|| NetAutoGUI.Windows                                           |
+|-|--------------------------------------------------------------|
+|*NuGet*| [v3.0.1](https://www.nuget.org/packages/NetAutoGUI.Windows/) |
 
 # Samples
 

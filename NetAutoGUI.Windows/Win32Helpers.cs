@@ -5,6 +5,11 @@ namespace NetAutoGUI.Windows;
 
 internal static class Win32Helpers
 {
+    /// <summary>
+    /// It only works when the calling thread has message queue.
+    /// </summary>
+    /// <param name="hWnd"></param>
+    /// <exception cref="ArgumentException"></exception>
     public static void ActiveWindow(HWND hWnd)
     {
         if (Win32Helpers.GetRootWindow(hWnd) != hWnd)
@@ -13,30 +18,31 @@ internal static class Win32Helpers
                 "Only handle to root Window is supported.");
         }
 
-        User32.ShowWindow(hWnd, ShowWindowCommand.SW_RESTORE);
-
         //In some scenarios, there is a classic "window just blinks in the taskbar" issue;
         //This happens because Windows prevents background applications from stealing focus for security and usability reasons.
 
-        uint targetThreadId = User32.GetWindowThreadProcessId(hWnd, out _);
-        uint currentThreadId = Kernel32.GetCurrentThreadId();
+        var foreground = User32.GetForegroundWindow();
+        uint foreThread = User32.GetWindowThreadProcessId(foreground, out _);
+        uint appThread = Kernel32.GetCurrentThreadId();
 
-        // Attach input threads to set focus properly
-        User32.AttachThreadInput(currentThreadId, targetThreadId, true);
-
-        //In some cases, even AttachThreadInput, BringWindowToTop, and SetFocus etc
-        //have been used, the window still just blinks in the task bar rather than being actived,
-        //This tricks Windows into thinking the user initiated the focus:
-        //This works more reliably because SetForegroundWindow will allow the change if the user “pressed” ALT.
-
-        User32.keybd_event((byte)User32.VK.VK_MENU, 0, 0); // ALT down
-        User32.SetForegroundWindow(hWnd);
-        User32.keybd_event((byte)User32.VK.VK_MENU, 0, User32.KEYEVENTF.KEYEVENTF_KEYUP); // ALT up
-
-        User32.BringWindowToTop(hWnd);
-        User32.SetFocus(hWnd);
-
-        User32.AttachThreadInput(currentThreadId, targetThreadId, false);
+        if (foreThread != appThread)
+        {
+            User32.AttachThreadInput(foreThread, appThread, true);
+            Win32Error.ThrowLastError();
+            User32.SetActiveWindow(hWnd);
+            Win32Error.ThrowLastError();
+            User32.SetForegroundWindow(hWnd);
+            Win32Error.ThrowLastError();
+            User32.BringWindowToTop(hWnd);
+            Win32Error.ThrowLastError();
+            User32.AttachThreadInput(foreThread, appThread, false);
+            Win32Error.ThrowLastError();
+        }
+        else
+        {
+            User32.SetForegroundWindow(hWnd);
+            Win32Error.ThrowLastError();
+        }
     }
 
     public static HWND GetRootWindow(HWND hWnd)

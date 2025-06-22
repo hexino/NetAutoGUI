@@ -17,9 +17,9 @@ public class ActivateShould
         try
         {
             Window? win = process.WaitForWindowByTitle("WinFormsAppForTest1");
-            //User32.ShowWindow(new HWND(new IntPtr(win.Id)), ShowWindowCommand.SW_MINIMIZE); //Hide the window
+            //User32.ShowWindow(new HWND(new IntPtr(win.Id)), ShowWindowCommand.SW_SHOWMINNOACTIVE); //Hide the window
             //TestHelpers.RecognizeText(GUI.Screenshot.Screenshot().Data).Should().NotContain("Zack666");
-            win?.Activate(); //todo: it doesn't work well if window minimized before
+            win?.Activate();
             TestHelpers.RecognizeText(GUI.Screenshot.Screenshot().Data).Should().Contain("Zack666");
             
         }
