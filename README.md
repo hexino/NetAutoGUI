@@ -30,6 +30,11 @@ GUI.Dialog.Confirm("Are you sure?"); // Show a confirmation dialog.
 string? name = GUI.Dialog.Prompt("What's your name?"); // Show a prompt dialog and get the user's input.
 ```
 
+Put the following code snippet in the top of Main():
+```csharp
+GUIWindows.Initialize(); // Initialize the NetAutoGUI Windows platform.
+```
+
 # Nuget Package
 
 || NetAutoGUI.Windows                                           |
